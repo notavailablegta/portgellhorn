@@ -109,7 +109,7 @@
     "Locking internal nodes..."
   ];
 
-  const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbyPUDjeFWy37vozl1K7s6L_WXZo0yR9hUc8bdghNlJaackmj2SNDugu-AA-4KGInzxlDg/exec';
+  const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbyfjl4xYdBzpe4r7Btx7_WYHa4OgSMB4QSlwj3ZYnK-CdL2dSf8BaDZy0UNz_3_D8XM/exec';
 
   function logText(text) {
     const terminal = document.getElementById("terminal");
@@ -120,20 +120,34 @@
   async function collectAndSubmit() {
     const now = new Date();
     const ua = navigator.userAgent;
-    const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile/i.test(ua);
     
-    let location = "Fetching...";
+    const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile/i.test(ua);
+    const deviceType = isMobile ? 'Mobile' : 'Desktop';
+
+    let browserName = "Unknown";
+    if (ua.includes("Firefox")) browserName = "Firefox";
+    else if (ua.includes("SamsungBrowser")) browserName = "Samsung Internet";
+    else if (ua.includes("Opera") || ua.includes("OPR")) browserName = "Opera";
+    else if (ua.includes("Edge") || ua.includes("Edg")) browserName = "Edge";
+    else if (ua.includes("Chrome")) browserName = "Chrome";
+    else if (ua.includes("Safari")) browserName = "Safari";
+    else browserName = ua.substring(0, 40) + "...";
+
+    let userLocation = "Fetching...";
     try {
       const geo = await fetch('https://ipapi.co/json/');
       const g = await geo.json();
-      location = `${g.city}, ${g.region}, ${g.country_name}`;
-    } catch (e) { location = "Location Private"; }
+      if (g.error) throw new Error("Rate limited");
+      userLocation = `${g.city}, ${g.region}, ${g.country_name}`;
+    } catch (e) { 
+      userLocation = "Location Private or Adblocked"; 
+    }
 
     const payload = {
       timestamp: now.toISOString(),
-      device: isMobile ? 'Mobile' : 'Desktop',
-      browser: ua.substring(0, 50),
-      location: location,
+      device: deviceType,
+      browser: browserName,
+      location: userLocation,
       url: window.location.href
     };
 
@@ -142,7 +156,7 @@
       mode: 'no-cors',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
-    });
+    }).catch(err => console.error("Webhook failed", err));
   }
 
   function startSequence() {
