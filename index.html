@@ -157,7 +157,7 @@ fetch(WEBHOOK_URL, {
   cache: 'no-cache',
   body: JSON.stringify(payload) // Data goes in the body
 }).catch(err => console.error("Webhook failed", err));
-  
+  }
   function startSequence() {
     document.getElementById("initBtn").style.display = "none";
     document.getElementById("terminal").innerHTML = "> INITIALIZING...";
