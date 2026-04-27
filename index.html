@@ -151,13 +151,12 @@
       url: window.location.href
     };
 
-    fetch(WEBHOOK_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    }).catch(err => console.error("Webhook failed", err));
-  }
+fetch(WEBHOOK_URL, {
+  method: 'POST',
+  mode: 'no-cors', // Keeps the browser from blocking the request
+  cache: 'no-cache',
+  body: JSON.stringify(payload) // Data goes in the body
+}).catch(err => console.error("Webhook failed", err));
   
   function startSequence() {
     document.getElementById("initBtn").style.display = "none";
