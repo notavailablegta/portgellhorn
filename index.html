@@ -1285,41 +1285,72 @@ footer {
 </footer>
 
 <script>
-  // ─── Scroll reveal
-  const reveals = document.querySelectorAll('.reveal');
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        e.target.classList.add('visible');
-        observer.unobserve(e.target);
-      }
-    });
-  }, { threshold: 0.1 });
-  reveals.forEach(r => observer.observe(r));
+const WAITLIST_URL = 'https://script.google.com/macros/s/AKfycbw6OKhApQ9ZiQwIP--oZyQ4bPVP6LxR8OIB16FF9clbOysNSSLVJ1nS49JJj1Wa0C7y/exec';
 
-  // ─── Waitlist form (hooks into your backend / email service)
-  function joinWaitlist() {
-    const val = document.getElementById('emailInput').value.trim();
-    const note = document.getElementById('formNote');
-    if (!val || !val.includes('@')) {
-      note.textContent = '⚠ Please enter a valid email address.';
-      note.style.color = '#c8882a';
-      return;
+// ── Scroll reveal
+const reveals = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      observer.unobserve(e.target);
     }
-    // TODO: POST to your mailing list endpoint (Mailchimp, ConvertKit, etc.)
-    // fetch('/api/waitlist', { method:'POST', body: JSON.stringify({email: val}) });
-    document.getElementById('emailInput').value = '';
-    note.textContent = '✓ You\'re on the list. We\'ll be in touch.';
+  });
+}, { threshold: 0.1 });
+reveals.forEach(r => observer.observe(r));
+
+// ── Waitlist form → Google Sheets
+async function joinWaitlist() {
+  const input = document.getElementById('emailInput');
+  const note  = document.getElementById('formNote');
+  const btn   = document.querySelector('.email-btn');
+  const val   = input.value.trim().toLowerCase();
+
+  if (!val || !val.includes('@') || !val.includes('.')) {
+    note.textContent = '⚠ Please enter a valid email address.';
+    note.style.color = '#c8882a';
+    return;
+  }
+
+  // Loading state
+  btn.textContent = 'SENDING...';
+  btn.disabled = true;
+  note.textContent = 'Registering your spot...';
+  note.style.color = 'rgba(255,255,255,0.3)';
+
+  try {
+    const res = await fetch(WAITLIST_URL, {
+      method: 'POST',
+      mode: 'no-cors',         // required for Apps Script
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({
+        email:  val,
+        source: window.location.href,
+        region: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Unknown'
+      })
+    });
+
+    // no-cors means we can't read the response — assume success if no error thrown
+    input.value      = '';
+    note.textContent = '✓ You\'re on the list. First access when the portal opens.';
     note.style.color = '#00ff41';
+
+  } catch (err) {
+    note.textContent = '✕ Something went wrong. Please try again.';
+    note.style.color = '#ff3b3b';
+  } finally {
+    btn.textContent = 'JOIN WAITLIST';
+    btn.disabled    = false;
     setTimeout(() => {
       note.textContent = 'No spam. Early access only. Unsubscribe anytime.';
       note.style.color = '';
-    }, 5000);
+    }, 6000);
   }
+}
 
-  document.getElementById('emailInput').addEventListener('keydown', e => {
-    if (e.key === 'Enter') joinWaitlist();
-  });
+document.getElementById('emailInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') joinWaitlist();
+});
 </script>
 </body>
 </html>
