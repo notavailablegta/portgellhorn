@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Port Gellhorn — Official Visitor Guide & RP Community</title>
+  
+  <meta name="description" content="Your complete guide to Port Gellhorn, Leonida. Explore the map, find jobs, read the latest rumors, and join the premier GTA 6 RP waitlist.">
+  <meta name="keywords" content="Port Gellhorn Map, Port Gellhorn Jobs, GTA 6 Port Gellhorn Leaks, Leonida Tourism, Gellhorn International Raceway">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    /* CORE THEME */
+    :root {
+      --ink: #1a1410;
+      --teal: #1a6b6b;
+      --gold: #c8882a;
+      --cream: #faf7f2;
+      --white: #ffffff;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--cream); color: var(--ink); font-family: 'DM Sans', sans-serif; line-height: 1.7; }
+    
+    /* NAV */
+    nav { display: flex; justify-content: space-between; padding: 20px 50px; background: rgba(250,247,242,0.9); position: fixed; width: 100%; top: 0; z-index: 100; border-bottom: 1px solid #ddd; }
+    .logo { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; text-decoration: none; color: var(--ink); }
+    .logo span { color: var(--teal); }
+    .nav-links { display: flex; gap: 30px; list-style: none; align-items: center; }
+    .nav-links a { text-decoration: none; color: var(--ink); font-size: 13px; text-transform: uppercase; letter-spacing: 1px; font-weight: 500; }
+    .join-btn { background: var(--teal); color: var(--white) !important; padding: 8px 16px; border-radius: 4px; }
+
+    /* HERO */
+    .hero { min-height: 80vh; display: flex; align-items: center; justify-content: center; text-align: center; background: var(--ink); color: var(--white); padding: 100px 20px; position: relative; }
+    .hero h1 { font-family: 'Playfair Display', serif; font-size: 4rem; line-height: 1; margin-bottom: 20px; }
+    .hero h1 em { color: var(--gold); }
+    .hero p { max-width: 600px; margin: 0 auto; color: rgba(255,255,255,0.7); font-size: 1.1rem; }
+
+    /* CONTENT GRID (Phase 1 Strategy) */
+    .container { max-width: 1200px; margin: 80px auto; padding: 0 20px; }
+    .section-title { font-family: 'Playfair Display', serif; font-size: 2.5rem; margin-bottom: 40px; text-align: center; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 40px; }
+    .card { background: var(--white); padding: 40px; border-top: 4px solid var(--teal); box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+    .card h3 { font-family: 'Playfair Display', serif; font-size: 1.5rem; margin-bottom: 15px; }
+
+    /* WAITLIST FORM (Google Sheets Integration) */
+    .waitlist-section { background: var(--teal); color: var(--white); padding: 80px 20px; text-align: center; }
+    .waitlist-section h2 { font-family: 'Playfair Display', serif; font-size: 2.5rem; margin-bottom: 15px; }
+    .waitlist-section p { margin-bottom: 30px; color: rgba(255,255,255,0.8); }
+    
+    #gSheetForm { display: flex; max-width: 500px; margin: 0 auto; gap: 10px; }
+    #gSheetForm input[type="email"] { flex: 1; padding: 15px; border: none; font-family: 'DM Sans', sans-serif; }
+    #gSheetForm button { padding: 15px 30px; background: var(--gold); color: var(--white); border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; }
+    #formMessage { margin-top: 15px; font-family: 'DM Mono', monospace; font-size: 12px; }
+
+    /* FOOTER & RISK SHIELD */
+    footer { background: var(--ink); color: rgba(255,255,255,0.4); padding: 40px 20px; text-align: center; font-size: 12px; }
+    .disclaimer { max-width: 800px; margin: 0 auto; padding: 20px; border: 1px solid rgba(255,255,255,0.1); }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="#" class="logo">Port <span>Gellhorn</span></a>
+    <ul class="nav-links">
+      <li><a href="#guide">Travel Guide</a></li>
+      <li><a href="#raceway">Raceway</a></li>
+      <li><a href="#waitlist" class="join-btn">RP Waitlist</a></li>
+    </ul>
+  </nav>
+
+  <section class="hero">
+    <div>
+      <h1>The Heart of <br><em>Leonida</em></h1>
+      <p>Discover the industrial grit, the high-speed thrills, and the booming coastal culture of Port Gellhorn. Your ultimate guide to the state's most notorious city.</p>
+    </div>
+  </section>
+
+  <div class="container" id="guide">
+    <h2 class="section-title">Visitor Information</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>History & Culture</h3>
+        <p>A faded coastal tourist town hiding a booming underworld. Compare its sprawling industrial zones and cheap motels to the real-world grit of Panama City and Port Charlotte.</p>
+      </div>
+      <div class="card" id="raceway">
+        <h3>Gellhorn International Raceway</h3>
+        <p>Rumored to be the premier destination for underground car meets and high-stakes racing. Get your vehicles tuned and ready for the black market economy.</p>
+      </div>
+      <div class="card">
+        <h3>Local Economy & Jobs</h3>
+        <p>From deep-sea fishing charters to illicit distribution networks, Port Gellhorn offers endless opportunities for the entrepreneurial citizen.</p>
+      </div>
+    </div>
+  </div>
+
+  <section class="waitlist-section" id="waitlist">
+    <h2>The Official RP Community</h2>
+    <p>Secure your character name, claim business ownership, and get priority queue access. Join the founding roster today.</p>
+    
+    <form id="gSheetForm">
+      <input type="email" name="Email" placeholder="Enter your email address" required>
+      <button type="submit">Join Waitlist</button>
+    </form>
+    <div id="formMessage"></div>
+  </section>
+
+  <footer>
+    <div class="disclaimer">
+      <strong>LEGAL DISCLAIMER:</strong> PortGellhorn.com is an independent, non-official fan site and community portal. It is completely unofficial and is NOT affiliated, associated, authorized, endorsed by, or in any way officially connected with Rockstar Games, Take-Two Interactive, or any of their subsidiaries. All original names, locations, and gameplay elements are the intellectual property of Take-Two Interactive.
+    </div>
+    <p style="margin-top: 20px;">&copy; 2026 Port Gellhorn Community. All rights reserved.</p>
+  </footer>
+
+  <script>
+    const scriptURL = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE'; // <-- Paste your URL here
+    const form = document.getElementById('gSheetForm');
+    const msg = document.getElementById('formMessage');
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      msg.innerText = "Submitting...";
+      fetch(scriptURL, { method: 'POST', body: new FormData(form)})
+        .then(response => {
+          msg.innerText = "Success! You are on the waitlist.";
+          form.reset();
+        })
+        .catch(error => {
+          msg.innerText = "Error submitting. Please try again.";
+          console.error('Error!', error.message);
+        });
+    });
+  </script>
+</body>
+</html>
