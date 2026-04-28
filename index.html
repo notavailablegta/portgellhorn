@@ -3,195 +3,661 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PORTGALHORN NODE</title>
+<title>PORTGALHORN // ACCESS PORTAL</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --amber:      #ffaa00;
+    --amber-dim:  #cc8800;
+    --amber-dark: #7a4f00;
+    --green:      #00ff41;
+    --red:        #ff3b3b;
+    --bg:         #060606;
+    --surface:    #0d0d0d;
+    --surface2:   #111111;
+    --border:     #1e1e1e;
+    --border2:    #2a2a2a;
+  }
+
+  html, body {
+    height: 100%;
+  }
+
   body {
-    margin: 0;
-    background: #050505;
-    color: #ffaa00;
-    font-family: 'Courier New', Courier, monospace;
+    background: var(--bg);
+    color: var(--amber);
+    font-family: 'Share Tech Mono', 'Courier New', monospace;
+    min-height: 100vh;
     display: flex;
-    justify-content: center;
     align-items: center;
-    height: 100vh;
+    justify-content: center;
     overflow: hidden;
+    position: relative;
   }
+
+  /* ── Scanlines */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 3px,
+      rgba(0,0,0,0.12) 3px,
+      rgba(0,0,0,0.12) 4px
+    );
+    pointer-events: none;
+    z-index: 200;
+  }
+
+  /* ── Vignette */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.75) 100%);
+    pointer-events: none;
+    z-index: 199;
+  }
+
+  /* ── Grid bg */
+  .grid-bg {
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,170,0,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,170,0,0.025) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Corner decorations */
+  .corner {
+    position: fixed;
+    width: 60px;
+    height: 60px;
+    pointer-events: none;
+    z-index: 5;
+  }
+  .corner.tl { top: 20px; left: 20px; border-top: 1px solid var(--border2); border-left: 1px solid var(--border2); }
+  .corner.tr { top: 20px; right: 20px; border-top: 1px solid var(--border2); border-right: 1px solid var(--border2); }
+  .corner.bl { bottom: 20px; left: 20px; border-bottom: 1px solid var(--border2); border-left: 1px solid var(--border2); }
+  .corner.br { bottom: 20px; right: 20px; border-bottom: 1px solid var(--border2); border-right: 1px solid var(--border2); }
+
+  /* ── Main container */
   .container {
-    width: 90%;
-    max-width: 650px;
-    border: 1px solid #333;
-    padding: 30px;
-    background: #0f0f0f;
-    box-shadow: 0 0 20px rgba(255, 170, 0, 0.1);
+    position: relative;
+    z-index: 10;
+    width: 92%;
+    max-width: 640px;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    box-shadow:
+      0 0 0 1px #151515,
+      0 0 60px rgba(255,170,0,0.07);
+    animation: fadeIn 0.5s ease;
   }
-  .logo {
-    text-align: center;
-    font-size: 22px;
-    font-weight: bold;
-    color: #ffaa00;
-    margin-bottom: 20px;
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Titlebar */
+  .titlebar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 7px 14px;
+    background: #080808;
+    border-bottom: 1px solid var(--border);
+    user-select: none;
+  }
+
+  .tb-dots { display: flex; gap: 6px; align-items: center; }
+  .dot {
+    width: 9px; height: 9px;
+    border-radius: 50%;
+  }
+  .dot.r { background: #2a0d0d; border: 1px solid #5a1a1a; }
+  .dot.y { background: #2a220d; border: 1px solid #5a481a; }
+  .dot.g { background: #0d2a12; border: 1px solid #1a5a24; }
+
+  .tb-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 9px;
+    letter-spacing: 4px;
+    color: #333;
+  }
+
+  .tb-live {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 9px;
     letter-spacing: 2px;
-    border-bottom: 1px solid #333;
-    padding-bottom: 15px;
+    color: var(--green);
   }
-  .terminal {
-    background: #000;
-    padding: 15px;
-    height: 220px;
-    overflow-y: auto;
-    border: 1px solid #222;
-    font-size: 13px;
-    color: #00ff41;
-    line-height: 1.5;
+
+  .live-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--green);
+    animation: livePulse 2s infinite;
   }
-  .access-denied {
-    color: #ff3333;
-    font-weight: bold;
-    font-size: 16px;
-    text-align: center;
-    margin-top: 20px;
-    display: none;
-    animation: blink 0.8s infinite;
-  }
-  @keyframes blink {
+
+  @keyframes livePulse {
     0%, 100% { opacity: 1; }
-    50% { opacity: 0; }
+    50%       { opacity: 0.2; }
   }
-  .btn {
-    display: block;
+
+  /* ── Header */
+  .header {
+    padding: 22px 22px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+
+  .header-left {}
+
+  .header-eyebrow {
+    font-size: 9px;
+    letter-spacing: 5px;
+    color: #3a3a3a;
+    margin-bottom: 5px;
+  }
+
+  .header-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: 3px;
+    color: var(--amber);
+    line-height: 1;
+  }
+
+  .header-sub {
+    margin-top: 5px;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: #3a3a3a;
+  }
+
+  .header-badge {
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--amber-dark);
+    border: 1px solid #3a2800;
+    padding: 4px 10px;
+    background: #0f0900;
+    white-space: nowrap;
+  }
+
+  /* ── Terminal */
+  .terminal-wrap {
+    background: #000;
+    border-bottom: 1px solid var(--border);
+    padding: 14px 16px;
+    height: 200px;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .terminal-wrap::-webkit-scrollbar { width: 3px; }
+  .terminal-wrap::-webkit-scrollbar-track { background: #000; }
+  .terminal-wrap::-webkit-scrollbar-thumb { background: #222; }
+
+  .t-line {
+    display: flex;
+    gap: 8px;
+    font-size: 11.5px;
+    line-height: 1.8;
+  }
+
+  .t-time { color: #2a2a2a; flex-shrink: 0; font-size: 10px; padding-top: 1px; }
+  .t-tag  { flex-shrink: 0; width: 28px; text-align: right; }
+  .t-tag.sys  { color: var(--amber-dim); }
+  .t-tag.ok   { color: var(--green); }
+  .t-tag.warn { color: #ff9900; }
+  .t-tag.err  { color: var(--red); }
+  .t-msg      { color: #666; }
+  .t-msg.hi   { color: var(--green); }
+  .t-msg.amb  { color: var(--amber); }
+  .t-msg.red  { color: var(--red); }
+
+  .t-cursor {
+    display: inline-block;
+    width: 7px;
+    height: 13px;
+    background: var(--green);
+    vertical-align: middle;
+    animation: blink 1s step-end infinite;
+    margin-left: 4px;
+  }
+
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* ── Stats row */
+  .stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .stat {
+    padding: 12px 16px;
+    border-right: 1px solid var(--border);
+  }
+  .stat:last-child { border-right: none; }
+
+  .stat-lbl {
+    font-size: 8px;
+    letter-spacing: 3px;
+    color: #333;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+  }
+
+  .stat-val {
+    font-family: 'Orbitron', monospace;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--amber);
+  }
+
+  .stat-val.g {
+    color: var(--green);
+  }
+
+  /* ── Info table */
+  .info-table {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .info-row {
+    display: flex;
+    padding: 8px 16px;
+    border-bottom: 1px solid #111;
+    font-size: 11px;
+    gap: 12px;
+    align-items: center;
+  }
+  .info-row:last-child { border-bottom: none; }
+
+  .info-key {
+    font-size: 8px;
+    letter-spacing: 3px;
+    color: #333;
+    width: 90px;
+    flex-shrink: 0;
+    text-transform: uppercase;
+  }
+
+  .info-val { color: #666; flex: 1; word-break: break-all; }
+  .info-val.amb { color: var(--amber-dim); }
+  .info-val.grn { color: var(--green); }
+
+  /* ── CTA button */
+  .cta-wrap {
+    padding: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .btn-init {
     width: 100%;
-    padding: 12px;
-    margin-top: 20px;
-    background: #111;
-    color: #ffaa00;
-    border: 1px solid #ffaa00;
-    font-family: 'Courier New', Courier, monospace;
-    font-weight: bold;
-    font-size: 15px;
+    padding: 13px;
+    background: #0a0a0a;
+    color: var(--amber);
+    border: 1px solid var(--amber-dark);
+    font-family: 'Orbitron', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 4px;
     cursor: pointer;
     text-transform: uppercase;
-    transition: 0.2s;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    display: block;
   }
-  .btn:hover {
-    background: #ffaa00;
+
+  .btn-init:hover:not(:disabled) {
+    background: var(--amber);
     color: #000;
+    border-color: var(--amber);
   }
+
+  .btn-init:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  /* ── Access granted / redirect banner */
+  .banner {
+    display: none;
+    padding: 10px 16px;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-align: center;
+    background: #000;
+    border-top: 1px solid #1a1a1a;
+    animation: bannerIn 0.3s ease;
+  }
+
+  @keyframes bannerIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  .banner.green { color: var(--green); border-color: #001a08; }
+  .banner.amber { color: var(--amber); border-color: var(--amber-dark); animation: pulse 0.8s infinite; }
+
+  @keyframes pulse { 50% { opacity: 0.5; } }
+
+  /* ── Footer */
+  .footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 16px;
+    font-size: 8px;
+    letter-spacing: 2px;
+    color: #222;
+  }
+
+  .footer-r { color: #2a2a2a; }
+
 </style>
 </head>
 <body>
 
+<div class="grid-bg"></div>
+<div class="corner tl"></div>
+<div class="corner tr"></div>
+<div class="corner bl"></div>
+<div class="corner br"></div>
+
 <div class="container">
-  <div class="logo">PRJ_AMERICAS</div>
-  
-  <div class="terminal" id="terminal">
-    > NODE: PORTGALHORN_SECURE<br>
-    > STATUS: AWAITING AUTHORIZATION...
+
+  <!-- Titlebar -->
+  <div class="titlebar">
+    <div class="tb-dots">
+      <div class="dot r"></div>
+      <div class="dot y"></div>
+      <div class="dot g"></div>
+    </div>
+    <div class="tb-title">PORTGALHORN_NODE // SECURE</div>
+    <div class="tb-live"><div class="live-dot"></div>LIVE</div>
   </div>
-  
-  <div class="access-denied" id="alertBox">
-    CRITICAL: UNAUTHORIZED ACCESS DETECTED.<br>INITIATING REDIRECT TO PUBLIC SERVERS...
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <div class="header-eyebrow">FAN PROJECT // PRJ_AMERICAS</div>
+      <div class="header-title">PORT GALHORN</div>
+      <div class="header-sub">VI_DEV_BUILD_v0.9.1 &nbsp;·&nbsp; NODE: NOMINAL</div>
+    </div>
+    <div class="header-badge">ACCESS PORTAL</div>
   </div>
-  
-  <button class="btn" id="initBtn" onclick="startSequence()">Initialize Session</button>
+
+  <!-- Terminal -->
+  <div class="terminal-wrap" id="terminal">
+    <div class="t-line">
+      <span class="t-time" id="t0"></span>
+      <span class="t-tag sys">SYS</span>
+      <span class="t-msg">NODE: PORTGALHORN_SECURE</span>
+    </div>
+    <div class="t-line">
+      <span class="t-time" id="t1"></span>
+      <span class="t-tag sys">SYS</span>
+      <span class="t-msg">STATUS: AWAITING PORTAL INITIALIZATION...</span>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-lbl">TOTAL VISITS</div>
+      <div class="stat-val" id="statTotal">—</div>
+    </div>
+    <div class="stat">
+      <div class="stat-lbl">TODAY</div>
+      <div class="stat-val g" id="statToday">—</div>
+    </div>
+    <div class="stat">
+      <div class="stat-lbl">SESSION NO.</div>
+      <div class="stat-val" id="statSession">—</div>
+    </div>
+  </div>
+
+  <!-- Info -->
+  <div class="info-table">
+    <div class="info-row">
+      <div class="info-key">BROWSER</div>
+      <div class="info-val" id="infoBrowser">—</div>
+    </div>
+    <div class="info-row">
+      <div class="info-key">DEVICE</div>
+      <div class="info-val" id="infoDevice">—</div>
+    </div>
+    <div class="info-row">
+      <div class="info-key">LOCATION</div>
+      <div class="info-val amb" id="infoLoc">RESOLVING...</div>
+    </div>
+    <div class="info-row">
+      <div class="info-key">SESSION ID</div>
+      <div class="info-val grn" id="infoSid">PENDING</div>
+    </div>
+    <div class="info-row">
+      <div class="info-key">TIMESTAMP</div>
+      <div class="info-val" id="infoTs">—</div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-wrap">
+    <button class="btn-init" id="initBtn" onclick="startPortal()">
+      ▶&nbsp; INITIALIZE PORTAL SESSION
+    </button>
+  </div>
+
+  <!-- Banner (hidden until ready) -->
+  <div class="banner green" id="bannerGrant">
+    ACCESS GRANTED — REDIRECTING TO PORT GELLHORN...
+  </div>
+  <div class="banner amber" id="bannerFail">
+    CONNECTION INTERRUPTED — RETRYING...
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <span>FAN PROJECT · NOT AFFILIATED WITH ROCKSTAR GAMES</span>
+    <span class="footer-r">PRJ_AMERICAS // v0.9.1</span>
+  </div>
+
 </div>
 
 <script>
-  const logs = [
-    "Establishing encrypted handshake...",
-    "Bypassing perimeter firewalls...",
-    "Connecting to central repository...",
-    "Fetching assets for 'VI_Dev_Build_v0.9.1'...",
-    "Decrypting payload...",
-    "Verifying employee R* Social Club credentials...",
-    "WARNING: Anomalous connection detected.",
-    "Attempting to resolve security clearance...",
-    "FAILED: Clearance level insufficient.",
-    "Locking internal nodes..."
-  ];
+  // ═══════════════════════════════════════════════
+  //  CONFIG — paste your Apps Script Web App URL:
+  // ═══════════════════════════════════════════════
+  const WEBHOOK = 'https://script.google.com/macros/s/AKfycbx7NxDtu6R4M30lOkuEBgkOMsmsiFgffJq_XQ59CH8MSetzfXtduwQUBM1CbPCSjh5N-A/exec';
+  const REDIRECT = 'https://www.rockstargames.com/VI/port-gellhorn';
+  const REDIRECT_DELAY = 4000; // ms after sequence completes
+  // ═══════════════════════════════════════════════
 
-  const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbx7NxDtu6R4M30lOkuEBgkOMsmsiFgffJq_XQ59CH8MSetzfXtduwQUBM1CbPCSjh5N-A/exec';
+  const term = document.getElementById('terminal');
 
-  function logText(text) {
-    const terminal = document.getElementById("terminal");
-    terminal.innerHTML += `<br>> ${text}`;
-    terminal.scrollTop = terminal.scrollHeight;
+  function now() {
+    return new Date().toTimeString().slice(0, 8);
   }
 
-  async function collectAndSubmit() {
-    const now = new Date();
+  function addLine(tag, tagCls, msg, msgCls = '') {
+    const row = document.createElement('div');
+    row.className = 't-line';
+    row.innerHTML =
+      `<span class="t-time">[${now()}]</span>` +
+      `<span class="t-tag ${tagCls}">${tag}</span>` +
+      `<span class="t-msg ${msgCls}">${msg}</span>`;
+    term.appendChild(row);
+    term.scrollTop = term.scrollHeight;
+  }
+
+  function showCursor() {
+    const row = document.createElement('div');
+    row.className = 't-line';
+    row.id = 'cursorRow';
+    row.innerHTML = `<span class="t-time"></span><span class="t-tag ok">$</span><span class="t-msg"><span class="t-cursor"></span></span>`;
+    term.appendChild(row);
+    term.scrollTop = term.scrollHeight;
+  }
+
+  function removeCursor() {
+    const c = document.getElementById('cursorRow');
+    if (c) c.remove();
+  }
+
+  // Detect browser / device
+  function clientInfo() {
     const ua = navigator.userAgent;
-    const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile/i.test(ua);
-    const deviceType = isMobile ? 'Mobile' : 'Desktop';
+    let browser = 'Unknown';
+    if      (ua.includes('Firefox'))       browser = 'Firefox';
+    else if (ua.includes('SamsungBrowser')) browser = 'Samsung Internet';
+    else if (ua.includes('OPR') || ua.includes('Opera')) browser = 'Opera';
+    else if (ua.includes('Edg'))            browser = 'Microsoft Edge';
+    else if (ua.includes('Chrome'))         browser = 'Chrome';
+    else if (ua.includes('Safari'))         browser = 'Safari';
 
-    let browserName = "Unknown Browser";
-    if (ua.includes("Firefox")) browserName = "Firefox";
-    else if (ua.includes("SamsungBrowser")) browserName = "Samsung Internet";
-    else if (ua.includes("Opera") || ua.includes("OPR")) browserName = "Opera";
-    else if (ua.includes("Edge") || ua.includes("Edg")) browserName = "Edge";
-    else if (ua.includes("Chrome")) browserName = "Chrome";
-    else if (ua.includes("Safari")) browserName = "Safari";
+    const mobile = /Android|iPhone|iPad|iPod/i.test(ua);
+    const device = mobile
+      ? 'Mobile / ' + (ua.includes('iPad') ? 'Tablet' : 'Smartphone')
+      : 'Desktop / PC';
 
-    let userLocation = "Fetching...";
-    try {
-      // Using a timeout for the geo-fetch so it doesn't hang the script
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 2500);
-      
-      const geo = await fetch('https://ipapi.co/json/', { signal: controller.signal });
-      const g = await geo.json();
-      userLocation = g.error ? "Location Private" : `${g.city}, ${g.region}, ${g.country_name}`;
-      clearTimeout(timeoutId);
-    } catch (e) { 
-      userLocation = "Location Private or Adblocked"; 
-    }
+    return { browser, device };
+  }
 
-    const payload = {
-      timestamp: now.toISOString(),
-      device: deviceType + " / " + browserName, 
-      location: userLocation,
-      url: window.location.href,
-      referrer: document.referrer || "Direct"
-    };
+  function genSid() {
+    return 'SES-' + Math.random().toString(36).slice(2, 8).toUpperCase();
+  }
 
-    // Use return to ensure the fetch promise is created
-    return fetch(WEBHOOK_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      cache: 'no-cache',
-      body: JSON.stringify(payload)
+  // Fill static info immediately on load
+  (function initInfo() {
+    const { browser, device } = clientInfo();
+    document.getElementById('infoBrowser').textContent = browser;
+    document.getElementById('infoDevice').textContent  = device;
+    document.getElementById('infoTs').textContent      = new Date().toISOString();
+
+    // Session counter (local)
+    const n = parseInt(localStorage.getItem('ph_visits') || '0') + 1;
+    localStorage.setItem('ph_visits', n);
+    document.getElementById('statSession').textContent = n;
+
+    // Set timestamp on existing lines
+    const ts = now();
+    const t0 = document.getElementById('t0');
+    const t1 = document.getElementById('t1');
+    if (t0) t0.textContent = '[' + ts + ']';
+    if (t1) t1.textContent = '[' + ts + ']';
+  })();
+
+  async function startPortal() {
+    const btn = document.getElementById('initBtn');
+    btn.disabled = true;
+
+    const sid = genSid();
+    document.getElementById('infoSid').textContent = sid;
+
+    const { browser, device } = clientInfo();
+
+    // ── Scripted log sequence
+    const sequence = [
+      { delay: 0,    tag: 'SYS', cls: 'sys', msg: 'Initializing portal session...' },
+      { delay: 300,  tag: ' OK', cls: 'ok',  msg: 'Session ID: ' + sid, mc: 'hi' },
+      { delay: 600,  tag: 'SYS', cls: 'sys', msg: 'Detecting client environment...' },
+      { delay: 900,  tag: ' OK', cls: 'ok',  msg: device + ' / ' + browser, mc: 'amb' },
+      { delay: 1200, tag: 'SYS', cls: 'sys', msg: 'Contacting PRJ_AMERICAS server...' },
+      { delay: 1500, tag: 'SYS', cls: 'sys', msg: 'Resolving visitor location...' },
+      { delay: 3000, tag: ' OK', cls: 'ok',  msg: '←  LOCATION_PLACEHOLDER', mc: 'amb', id: 'locLine' },
+      { delay: 3200, tag: ' OK', cls: 'ok',  msg: 'Visit logged. All systems nominal.', mc: 'hi' },
+      { delay: 3500, tag: 'SYS', cls: 'sys', msg: 'Access granted. Preparing redirect...', mc: 'amb' },
+    ];
+
+    sequence.forEach(({ delay, tag, cls, msg, mc = '', id }) => {
+      setTimeout(() => {
+        addLine(tag, cls, msg, mc);
+        if (id) {
+          const rows = term.querySelectorAll('.t-line');
+          rows[rows.length - 1].id = id;
+        }
+        term.scrollTop = term.scrollHeight;
+      }, delay);
     });
-  }
-  
-  function startSequence() {
-    // 1. UI Update
-    document.getElementById("initBtn").style.display = "none";
-    document.getElementById("terminal").innerHTML = "> INITIALIZING...";
-    
-    // 2. Start data collection immediately
-    collectAndSubmit().catch(err => console.error("Log error:", err));
-    
-    // 3. Start the visual terminal "hack" effect
-    let i = 0;
-    const interval = setInterval(() => {
-      if (i < logs.length) {
-        logText(logs[i]);
-        i++;
-      } else {
-        clearInterval(interval);
-        triggerDenied();
-      }
-    }, 600); // Slightly faster for better feel
-  }
 
-  function triggerDenied() {
-    const terminal = document.getElementById("terminal");
-    terminal.innerHTML += `<br><br><span style="color: #ff3333; font-weight: bold;">> ACCESS DENIED.</span>`;
-    terminal.scrollTop = terminal.scrollHeight;
-    
-    document.getElementById("alertBox").style.display = "block";
+    // ── Fetch location in parallel
+    let location = 'UNKNOWN / PRIVATE';
+    try {
+      const ctrl = new AbortController();
+      setTimeout(() => ctrl.abort(), 4000);
+      const geo = await fetch('https://ipapi.co/json/', { signal: ctrl.signal });
+      const g   = await geo.json();
+      if (!g.error && g.city) location = `${g.city}, ${g.region}, ${g.country_name}`;
+    } catch (e) { /* timeout or blocked */ }
+
+    document.getElementById('infoLoc').textContent = location;
+
+    // Patch location into log line when it appears
+    setTimeout(() => {
+      const row = document.getElementById('locLine');
+      if (row) {
+        const msgEl = row.querySelector('.t-msg');
+        if (msgEl) msgEl.textContent = 'Location: ' + location;
+      }
+    }, 3100);
+
+    // ── Send to Google Sheets
+    let total = null, today = null;
+    try {
+      const res = await fetch(WEBHOOK, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sessionId: sid,
+          timestamp: new Date().toISOString(),
+          browser,
+          device,
+          location,
+          url: window.location.href,
+          referrer: document.referrer || 'Direct'
+        })
+      });
+      try {
+        const data = await res.json();
+        if (data.total !== undefined) total = data.total;
+        if (data.today !== undefined) today = data.today;
+      } catch (e) {}
+    } catch (e) {}
+
+    // Update counters
+    setTimeout(() => {
+      document.getElementById('statTotal').textContent = total !== null ? total : '—';
+      document.getElementById('statToday').textContent = today !== null ? today : '—';
+    }, 3300);
+
+    // ── Final: show banner + redirect
+    setTimeout(() => {
+      showCursor();
+      document.getElementById('bannerGrant').style.display = 'block';
+    }, 3800);
 
     setTimeout(() => {
-      window.location.href = "https://www.rockstargames.com/VI/port-gellhorn";
-    }, 3500);
+      window.location.href = REDIRECT;
+    }, 3800 + REDIRECT_DELAY);
   }
 </script>
+</body>
+</html>
